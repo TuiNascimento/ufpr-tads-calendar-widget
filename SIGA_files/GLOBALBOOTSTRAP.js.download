@@ -1,0 +1,568 @@
+$(document).ready(function() {
+	$('.hora').inputmask('hh:mm', {
+		'placeholder' : 'hh:mm'
+	});
+	$(".time").mask('00:00');
+	$(".dinheiro").maskMoney();
+	$("[data-mask]").inputmask();
+	$(".searchSelect").select2();
+	$('.dataMask').inputmask('dd/mm/yyyy', {
+		'placeholder' : 'dd/mm/aaaa'
+	});
+	$(".inputData").datepicker({
+		autoclose : true
+	});
+
+	$('.time').change(function() {
+		hora = $(this).val().split(":");
+		if (hora[0].length < 2 || (hora[0] > 23 || hora[0] < 00))
+			$(this).val("");
+		if (hora[1].length < 2 || (hora[1] > 59 || hora[1] < 00))
+			$(this).val("");
+	});
+	
+	$('.tabelaExportavel').each(function() { 
+        var orientation = $('#'+this.id).attr("orientation");
+        if (orientation == null) {
+        	orientation = 'landscape';
+        }
+        var scrollY = $('#'+this.id).attr("scrollY");
+        if (scrollY == null) {
+        	scrollY = '300px';
+        }
+        if($("#"+this.id+"_wrapper").length == 0 && this.id != ''){
+	        $(this).DataTable({
+	    		"sScrollY": scrollY,
+	    		responsive: true,
+	    		  dom: 'Bfrtip',
+	    	        buttons: [
+	    	            'copy', 'csv', 'excel', {
+	    	        		   extend: 'pdfHtml5',
+	    	                   orientation: orientation,
+	    	                   pageSize: 'LEGAL'
+	    	        	}, 'print'
+	    	        ]
+	    	});
+		}
+
+    });
+	
+	jQuery('input[type=tel]').mask("(00) 0000-00009");
+
+	$('input[type=tel]').blur(function(event) {
+		if ($(this).val().length == 15) { // Celular com 9 d�gitos + 2 d�gitos
+											// DDD e 4 da m�scara
+			$(this).mask('(00) 00000-0009');
+		} else {
+			$(this).mask('(00) 0000-00009');
+		}
+	});
+
+});
+
+/**
+ * Opcoes primary=azul, success = verde, warning = laranja, danger=vermelho,
+ * default=cinza
+ * 
+ * @param tipo
+ * @param titulo
+ * @param mensagem
+ * @returns
+ */
+function mostraModal(tipo, titulo, mensagem) {
+	$("#modal-mensagem").remove();
+	$("body")
+			.append(
+					"<div class=\"modal modal-"
+							+ tipo
+							+ "  fade\" id=\"modal-mensagem\" role=\"dialog\"> "
+							+ "<div class=\"modal-dialog\"> "
+							+ " <div class=\"modal-content\"> "
+							+ " <div class=\"modal-header\"> "
+							+ "   <button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button> "
+							+ "   <h4 class=\"modal-title\">"
+							+ titulo
+							+ "</h4> "
+							+ " </div> "
+							+ " <div class=\"modal-body\" style=\"max-height: calc(100vh - 200px);overflow-y: auto;\" \> "
+							+ "   <p>"
+							+ mensagem
+							+ "</p> "
+							+ " </div> "
+							+ " <div class=\"modal-footer\"> "
+							+ "   <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Ok (Enter)</button> "
+							+ " </div> " + " </div> " + " </div> " + " </div>");
+	$("#modal-mensagem").modal()
+	$(document).one("keypress",function(e) {
+		if(e.which == 13) {
+			$("#modal-mensagem").modal("hide");
+		}
+		return false;
+	});
+
+}
+
+function comparaDatas(data1, data2) {
+	var nova_data1 = parseInt(data1.split("/")[2].toString()
+			+ data1.split("/")[1].toString() + data1.split("/")[0].toString());
+	var nova_data2 = parseInt(data2.split("/")[2].toString()
+			+ data2.split("/")[1].toString() + data2.split("/")[0].toString());
+
+	var retorno;
+	if (nova_data2 > nova_data1)
+		retorno = "<";
+	else if (nova_data1 == nova_data2)
+		retorno = "=";
+	else
+		retorno = ">";
+
+	return retorno;
+}
+
+/**
+ * Classe para somente numeros. Para usar class="sonums"
+ */
+$(function() {
+	$('.sonums').keypress(function(event) {
+		var tecla = (window.event) ? event.keyCode : event.which;
+		if ((tecla > 47 && tecla < 58) || (tecla == 0))
+			return true;
+		else {
+			if (tecla != 8)
+				return false;
+			else
+				return true;
+		}
+	});
+
+	$(".sonums").bind('paste', function(e) {
+		return false;
+	});
+});
+
+/**
+ * Classe para validar cpf
+ */
+function TestaCPF(strCPF) {
+	var Soma;
+	var Resto;
+	Soma = 0;
+	if (strCPF == "00000000000")
+		return false;
+
+	if (strCPF.length != 11)
+		return false;
+
+	for (i = 1; i <= 9; i++)
+		Soma = Soma + parseInt(strCPF.substring(i - 1, i)) * (11 - i);
+
+	Resto = (Soma * 10) % 11;
+	if ((Resto == 10) || (Resto == 11))
+		Resto = 0;
+
+	if (Resto != parseInt(strCPF.substring(9, 10)))
+		return false;
+	Soma = 0;
+
+	for (i = 1; i <= 10; i++)
+		Soma = Soma + parseInt(strCPF.substring(i - 1, i)) * (12 - i);
+	Resto = (Soma * 10) % 11;
+	if ((Resto == 10) || (Resto == 11))
+		Resto = 0;
+
+	if (Resto != parseInt(strCPF.substring(10, 11)))
+		return false;
+
+	return true;
+
+}
+
+/**
+ * Classe para buscar pessoa pelo documento
+ */
+function buscaPessoaCadastroResumido() {
+	vDocumento = $("#valorDocumentoPessoa").val();
+	vCategoria = $('#categoria').val();
+	vNivelTitulacao = "";
+	vAnoBase = $('#anobase').val();
+	vIdPrograma = $('#idprograma').val();
+	caminho = '/siga/ServletVerificarCadastroPessoa';
+	if (vCategoria == 'I' || vCategoria == 'E') {
+		vNivelTitulacao = $('#niveltitulacao option:selected').val();
+	}
+	$.ajax({
+		url : caminho,
+		type : 'get',
+		datatype : 'json',
+		async: false,
+		data : {
+			valorDocumento : vDocumento,
+			categoria : vCategoria,
+			vNivelTitulacao : vNivelTitulacao,
+			anobase : vAnoBase,
+			idprograma : vIdPrograma
+		},
+		success : function(resultado) {
+			var myObject = eval(resultado);
+			atualizaDadosPessoaisResumido(myObject);
+		}
+	});
+}
+
+function atualizaDadosPessoaisResumido(json) {
+	if (json[0].documento != "pessoaNova") {
+		if (json[0].documento == "cadastrado") {
+			if (vCategoria != 'I') {
+				mostraModal(
+						"warning",
+						"Alerta",
+						"<p> O documento inserido já está cadastrado nesse programa. Por favor, verifique o documento. </p>");
+				$('#dadosPessoais').hide();
+			} else if (vCategoria == 'I') {
+				mostraModal(
+						"warning",
+						"Alerta",
+						"<p> O documento inserido já está matriculado nesse programa. Por favor, verifique o documento. </p>");
+				$('#dadosPessoais').hide();
+			}
+		} else {
+			$("#nome").val(json[0].nome);
+			$("#nomeCivil").val(json[0].nomeCivil);
+			$("#documento").val(json[0].documento);
+			$("#email").val(json[0].email);
+			$('#sexo option[value=' + json[0].sexo + ']').attr('selected',
+					'selected');
+			$("#tipoDocumento").val(json[0].tipoDocumento);
+			$("#achou").val(1);
+			$("#temVinculoEmpregaticio").val(json[0].temVinculoEmpregaticio);
+			$("#sequencial").val(json[0].sequencial);
+
+			if ($('#tipoDocumento').val() == "C"
+					&& TestaCPF($('#valorDocumentoPessoa').val())) {
+				$('#dadosPessoais').show();
+				$('#botaoSalvar').show();
+			}
+
+			if ($('#tipoDocumento').val() == "P") {
+				$('#dadosPessoais').show();
+				$('#botaoSalvar').show();
+			}
+		}
+	} else {
+		var booleanCpf = $('#tipoDocumento').val() == "C"
+				&& TestaCPF($('#valorDocumentoPessoa').val());
+		var booleanPassaporte = $('#tipoDocumento').val() == "P"
+				&& $('#valorDocumentoPessoa').val() != ""
+				&& $('#valorDocumentoPessoa').val() != null;
+		if (booleanCpf || booleanPassaporte) {
+			var doc = $('#valorDocumentoPessoa').val();
+			if ($('#achou').val() == 1) {
+				document.formCadastro.reset();
+			}
+			$("#documento").val(doc);
+			$('#valorDocumentoPessoa').val(doc);
+			$("#achou").val(0);
+			$("#temVinculoEmpregaticio").val(json[0].temVinculoEmpregaticio);
+			$('#dadosPessoais').show();
+			$('#botaoSalvar').show();
+		} else {
+			$('#dadosPessoais').hide();
+			$('#botaoSalvar').hide();
+		}
+	}
+}
+function buscaPessoa() {
+	vDocumento = $("#valorDocumento").val();
+	vCategoria = $('#categoria').val();
+	vNivelTitulacao = "";
+	vAnoBase = $('#anobase').val();
+	vIdPrograma = $('#idprograma').val();
+	caminho = '/siga/ServletVerificarCadastroPessoa';
+	$.ajax({
+		url : caminho,
+		type : 'get',
+		datatype : 'json',
+		async: false,
+		data : {
+			valorDocumento : vDocumento,
+			categoria : vCategoria,
+			vNivelTitulacao : vNivelTitulacao,
+			anobase : vAnoBase,
+			idprograma : vIdPrograma
+		},
+		success : function(resultado) {
+			var myObject = eval(resultado);
+			atualizaDadosPessoais(myObject);
+			$('#accordion').show();
+		}
+	});
+}
+
+function atualizaDadosPessoais(json) {
+	if (json[0].documento != "pessoaNova") {
+		if (json[0].documento == "cadastrado") {
+			mostraModal(
+					"warning",
+					"Alerta",
+					"<p> O documento inserido já está matriculado nesse programa. Por favor, verifique o documento. </p>");
+			$('#dadosPessoais').hide();
+			$('#botaoSalvar').hide();
+			$('#extensaoDadosPessoais').hide();
+		} else {
+			$("#nome").val(json[0].nome);
+			$("#nomeCivil").val(json[0].nomeCivil);
+			$("#documento").val(json[0].documento);
+			$("#sequencial").val(json[0].sequencial);
+			$("#nomepai").val(json[0].nomePai);
+			$("#nomemae").val(json[0].nomeMae);
+			$("#email").val(json[0].email);
+			$('#sexo option[value=' + json[0].sexo + ']').attr('selected',
+					'selected');
+			$("#tipoDocumento").val(json[0].tipoDocumento);
+			$("#datanascimento").val(json[0].dataNascimento);
+			$("#corraca").val(json[0].corRaca);
+			$('#origem option[value=' + json[0].origem + ']').attr('selected',
+					'selected');
+			$("#cep").val(json[0].cep);
+			$("#bairro").val(json[0].bairro);
+			$("#pais option[value='" + json[0].pais + "']").prop('selected',
+					'selected').trigger('change');
+			$("#idestado option[value='" + json[0].estado + "']").prop(
+					'selected', 'selected').trigger('change');
+			$("#idcidade option[value='" + json[0].cidade + "']").prop(
+					'selected', 'selected').trigger('change');
+			$("#localnascimento").val(json[0].localNascimento);
+			$("#complemento").val(json[0].complementoEndereco);
+			$("#endereco").val(json[0].endereco);
+			$("#numero").val(json[0].numeroEndereco);
+			$("#telefone1").val(json[0].telefone1);
+			$("#telefone2").val(json[0].telefone2);
+			$("#achou").val(1);
+
+			$('#dadosPessoais').show();
+			$('#extensaoDadosPessoais').show();
+			if ($('#tipoDocumento').val() == "C"
+					&& !TestaCPF($('#valorDocumento').val())) {
+				$('#dadosPessoais').hide();
+				$('#extensaoDadosPessoais').hide();
+			}
+		}
+	} else {
+		var doc = $('#valorDocumento').val();
+		if ($('#achou').val() == 1) {
+			document.formCadastro.reset();
+		}
+		$("#documento").val(doc);
+		$('#valorDocumento').val(doc);
+		$("#achou").val(0);
+	}
+}
+
+function selecionaComboIes(combo1, combo2) {
+	combo2 = document.getElementById(combo2);
+	pais = document.getElementById(combo1).value;
+
+	$.ajax({
+		url : '/siga/BuscaIes',
+		type : 'get',
+		datatype : 'json',
+		async : false,
+		data : {
+			pais : pais
+		},
+		success : function(resultado) {
+			var myObject = eval('(' + resultado + ')');
+			atualizaComboIes(myObject, combo2);
+
+		}
+	});
+}
+
+function atualizaComboIes(json, combo) {
+	limparCombo(combo);
+	combo.options[combo.length] = new Option("Selecione", "");
+	for (var i = 0; i < json.length; i++) {
+		combo.options[combo.length] = new Option(json[i].nome + " - "
+				+ json[i].sigla, json[i].nome);
+	}
+}
+
+function limparCombo(combo) {
+	if (combo != null)
+		while (combo.length > 0) {
+			combo.remove(combo.length - 1);
+
+		}
+} // fim limparCombo
+
+function salvarNovaIES() {
+	if ($('#nomeNovaIes').val() == null || $("#siglaNovaIes").val() == null
+			|| $('#nomeNovaIes').val() == "" || $("#siglaNovaIes").val() == "") {
+		mostraModal("warning", "Aviso",
+				"<b>Atenção! Os campos de sigla e nome são obrigatórios!</b>");
+	} else {
+		salvarIes($('#paisOrigemIes').val(), 'nomeOrigemIes');
+		mostraModal("success", "IES cadastrada com sucesso",
+				"A Instituição de Ensino Superior foi cadastrada com sucesso.");
+	}
+}
+
+function salvarIes(pais, nomeCombo) {
+	$.ajax({
+		url : '/siga/CadastrarIes',
+		type : 'get',
+		datatype : 'json',
+		async : false,
+		data : {
+			pais : pais,
+			nome : $('#nomeNovaIes').val(),
+			sigla : $('#siglaNovaIes').val()
+		},
+		success : function(resultado) {
+			combo = document.getElementById(nomeCombo);
+			combo.options[combo.length] = new Option($('#nomeNovaIes').val(),
+					$('#nomeNovaIes').val());
+			$(
+					"#" + nomeCombo + " option[value='"
+							+ $('#nomeNovaIes').val() + "']").attr("selected",
+					"selected");
+
+		}
+	});
+}
+
+function atualizaSigla(nome, combo) {
+	$.ajax({
+		url : '/siga/BuscaIes?tipo=sigla',
+		type : 'get',
+		async : true,
+		datatype : 'json',
+		data : {
+			nome : nome
+		},
+		success : function(resultado) {
+			var myObject = eval("(" + resultado + ")");
+			$('#' + combo).val(myObject);
+
+		}
+	});
+}
+
+function selecionaComboIesEditar(pais, combo2, nomeIes) {
+	nomeCombo = combo2;
+	combo = document.getElementById(combo2);
+	limparCombo(combo);
+
+	$.ajax({
+		url : '/siga/BuscaIes',
+		type : 'get',
+		async : false,
+		datatype : 'json',
+		data : {
+			pais : pais
+		},
+		success : function(resultado) {
+			var myObject = eval('(' + resultado + ')');
+			atualizaComboIesEditar(myObject, combo, nomeCombo, nomeIes);
+		}
+	});
+
+}
+
+function atualizaComboIesEditar(json, combo, nomeCombo, nomeIes) {
+	combo.options[combo.length] = new Option("Selecione", "");
+	for (var i = 0; i < json.length; i++) {
+		combo.options[combo.length] = new Option(json[i].nome + " - "
+				+ json[i].sigla, json[i].nome);
+	}
+
+	var iesSelecionado = $('#' + nomeIes).val();
+
+	$("#" + nomeCombo + " option[value='" + iesSelecionado + "']").attr(
+			"selected", "selected");
+
+}
+
+var waitingDialog = waitingDialog
+		|| (function($) {
+			'use strict';
+
+			// Creating modal dialog's DOM
+			var $dialog = $('<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">'
+					+ '<div class="modal-dialog modal-m">'
+					+ '<div class="modal-content">'
+					+ '<div class="modal-header"><h3 style="margin:0;"></h3></div>'
+					+ '<div class="modal-body">'
+					+ '<div class="loader"></div>'
+					+ '</div>' + '</div></div></div>');
+
+			return {
+				/**
+				 * Opens our dialog
+				 * 
+				 * @param message
+				 *            Custom message
+				 * @param options
+				 *            Custom options: options.dialogSize - bootstrap
+				 *            postfix for dialog size, e.g. "sm", "m";
+				 *            options.progressType - bootstrap postfix for
+				 *            progress bar type, e.g. "success", "warning".
+				 */
+				show : function(message, options) {
+					// Assigning defaults
+					if (typeof options === 'undefined') {
+						options = {};
+					}
+					if (typeof message === 'undefined') {
+						message = 'Carregando';
+					}
+					var settings = $.extend({
+						dialogSize : 'm',
+						progressType : '',
+						onHide : null
+					// This callback runs after the dialog was hidden
+					}, options);
+
+					// Configuring dialog
+					$dialog.find('.modal-dialog').attr('class', 'modal-dialog')
+							.addClass('modal-' + settings.dialogSize);
+					$dialog.find('.progress-bar').attr('class', 'progress-bar');
+					if (settings.progressType) {
+						$dialog.find('.progress-bar').addClass(
+								'progress-bar-' + settings.progressType);
+					}
+					$dialog.find('h3').text(message);
+					// Adding callbacks
+					if (typeof settings.onHide === 'function') {
+						$dialog.off('hidden.bs.modal').on('hidden.bs.modal',
+								function(e) {
+									settings.onHide.call($dialog);
+								});
+					}
+					// Opening dialog
+					$dialog.modal();
+				},
+				/**
+				 * Closes dialog
+				 */
+				hide : function() {
+					$dialog.modal('hide');
+				}
+			};
+
+		})(jQuery);
+
+function atualizaSoNums() { // para atualizar os campos de números que foram
+							// adicionados pelo javascript/jquery
+	$('.sonums').keypress(function(event) {
+		var tecla = (window.event) ? event.keyCode : event.which;
+		if ((tecla > 47 && tecla < 58))
+			return true;
+		else {
+			if (tecla != 8)
+				return false;
+			else
+				return true;
+		}
+	});
+}

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<!-- saved from url=(0031)https://www.prppg.ufpr.br/siga/ -->
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+      <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, text/html, charset=iso-8859-1" name="viewport">
+      <title>SIGA</title>
+      <meta name="google-site-verification" content="UaRLG4TtOqXEktNOcfj3hOwb4t9MsuQ6bdezoHYCtZo">
+      <link rel="stylesheet" href="./SIGA_files/bootstrap.css">
+      <link rel="stylesheet" href="./SIGA_files/AdminLTE.min.css">
+      
+      <script type="text/javascript" src="./SIGA_files/jquery-2.2.3.min.js.download"></script>
+      <script type="text/javascript" src="./SIGA_files/jquery-ui.min.js.download"></script>
+      <script type="text/javascript" src="./SIGA_files/bootstrap.min.js.download"></script>
+      <script type="text/javascript" src="./SIGA_files/select2.full.min.js.download"></script>
+      <script type="text/javascript" src="./SIGA_files/GLOBALBOOTSTRAP.js.download"></script>
+      <script type="text/javascript" src="./SIGA_files/jquery.mask.js.download"></script>
+      <script type="text/javascript" src="./SIGA_files/jquery.mask.min.js.download"></script>
+      <script src="./SIGA_files/jquery.inputmask.js.download"></script>
+      <script src="./SIGA_files/maskMoney.js.download"></script>
+      <script type="text/javascript">
+         $(function() {
+         	$(document).ready(function() {
+         		var heights = $(".small-box").map(function() {
+         			return $(this).height();
+         		}).get(),
+         
+         		maxHeight = Math.max.apply(null, heights);
+         		$(".small-box").height(maxHeight);
+         	});
+         	$(document).ready(function() {
+         		var heights = $(".info-box").map(function() {
+         			return $(this).height();
+         		}).get(),
+         
+         		maxHeight = Math.max.apply(null, heights);
+         		$(".info-box").height(maxHeight);
+         		$(".info-box-icon").height(maxHeight);
+         	});
+         });
+         
+         function isEmail(email, div) {
+         	var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+         	if (!regex.test(email)) {
+         		$('#' + div).show();
+         		return false;
+         	} else {
+         		$('#' + div).hide();
+         		return true;
+         	}
+         }
+      </script>
+   </head>
+   <body class="skin-blue sidebar-mini">
+      <script>
+         function setCookieMenu(key, value) {
+         	var the_cookie = key + "=" + value + "; path=/";
+         	document.cookie = the_cookie;
+         }
+         function getCookieMenu(key) {
+         	var search = key + "="
+         	var returnvalue = "";
+         	if (document.cookie.length > 0) {
+         		offset = document.cookie.indexOf(search)
+         		if (offset != -1) {
+         			offset += search.length
+         			end = document.cookie.indexOf(";", offset);
+         			if (end == -1)
+         				end = document.cookie.length;
+         			returnvalue = unescape(document.cookie.substring(offset, end))
+         		}
+         	}
+         
+         	return returnvalue;
+         }
+         $(document).ready(function() {
+         	var str = getCookieMenu("menuativo");
+         	var menus = str.split("XSEPX");
+         	for (var i = 0; i < menus.length; i++) {
+         		if (!$("#" + menus[i]).hasClass("active")) {
+         			$("#" + menus[i]).addClass("active");
+         		}
+         	}
+         });
+         
+         var t;
+         var executaListener = true;
+         this.t = setInterval("verificaSessao()", '10000');
+         function verificaSessao() {
+         	if (executaListener == true) {
+         		listenerSessao($("#sessionControllerIdPrograma").val(), $(
+         				"#sessionControllerNivelAcesso").val());
+         	}
+         }
+         function acao() {
+         	clearInterval(this.t);
+         	//inicia novamente
+         	this.t = setInterval("verificaSessao()", '10000');
+         }
+         
+         $("body").mousemove(function(event) {
+         	acao();
+         });
+         
+         $("body").keypress(function(event) {
+         	acao();
+         
+         });
+         function listenerSessao(idProgramaJSP, nivelAcessoJSP) {
+         	clearInterval(this.t);//para o listener enquanto nao houver keypress ou mousemove 
+         	if (nivelAcessoJSP >= 1 && nivelAcessoJSP <= 100) {
+         		$
+         				.ajax({
+         					url : '/siga/visitante/sessaoListener',
+         					type : 'post',
+         					datatype : 'text',
+         					data : {
+         						idPrograma : idProgramaJSP,
+         						nivelAcesso : nivelAcessoJSP
+         					},
+         
+         					success : function(resultado) {
+         						if (resultado == 1) {
+         							executaListener = false;
+         							$("#modalSessaoExpirada").modal('show');
+         							$(document).ready(function() {
+         								document.title = "(1) " + document.title;
+         							});
+         						} else if (resultado == 2) {
+         							executaListener = false;
+         							window.location.href = $('#caminhoURLSiga')
+         									.val();
+         						}
+         					}
+         				});
+         	}
+         }
+         
+         $('#modalSessaoExpirada').on('hidden.bs.modal', function() {
+         	window.location.href = '/siga/login';
+         });
+      </script>
+      <script type="text/javascript" src="./SIGA_files/app.min.js.download"></script>
+                  <div>
+                    <div style="display: grid; grid-template-rows: 50px 1fr; grid-template-columns: repeat(8, 1fr); background: lightgray; height: 410px;">
+                        <div class="text-center" style="border-right: 1px dashed gray; background: rgb(44, 59, 65); color: white;">
+                           Horário
+                        </div>
+                        <div class="text-center" style="border-right: 1px dashed gray; background: rgb(44, 59, 65); color: white;">
+                           Segunda-Feira
+                        </div>
+                        <div class="text-center" style="border-right: 1px dashed gray; background: rgb(44, 59, 65); color: white;">
+                           Terça-Feira
+                        </div>
+                        <div class="text-center" style="border-right: 1px dashed gray; background: rgb(44, 59, 65); color: white;">
+                           Quarta-Feira
+                        </div>
+                        <div class="text-center" style="border-right: 1px dashed gray; background: rgb(44, 59, 65); color: white;">
+                           Quinta-Feira
+                        </div>
+                        <div class="text-center" style="border-right: 1px dashed gray; background: rgb(44, 59, 65); color: white;">
+                           Sexta-Feira
+                        </div>
+                        <div class="text-center" style="border-right: 1px dashed gray; background: rgb(44, 59, 65); color: white;">
+                           Sábado
+                        </div>
+                        <div class="text-center" style="border-right: 1px dashed gray; background: rgb(44, 59, 65); color: white;">
+                           Domingo
+                        </div>
+                        <div class="text-left" style="position: relative;">
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;"><span>19:00</span></div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;"><span>20:00</span></div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;"><span>21:00</span></div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;"><span>22:00</span></div>
+                        </div>
+                        <div class="text-left" style="position: relative;">
+                           <div id="Segunda-Feira0" data-toggle="tooltip" title="PROJETO DE ALGORITMOS E PRÁTICA DE PROGRAMAÇÃO - N1 - Padrão - Teams - LUIZ ANTONIO PASSOS CARDOSO" class="color-palette bg-green-active" style="position: absolute; height: 90px; width: 100%; top: 0px; left: 0%; border: 1px solid gray; padding: 2px;">
+                              <small>
+                              DS110 
+                              N1
+                              <span > 
+                              - PROJETO DE ALGORITMOS E PRÁTI...
+                              </span></small> <span ><br>19:00 - 20:00    
+                              </span> <!----> <!---->
+                           </div>
+                           <div id="Segunda-Feira1" data-toggle="tooltip" title="PROJETO DE ALGORITMOS E PRÁTICA DE PROGRAMAÇÃO - N1 - Padrão - Teams - LUIZ ANTONIO PASSOS CARDOSO" class="color-palette bg-green-active" style="position: absolute; height: 90px; width: 100%; top: 90px; left: 0%; border: 1px solid gray; padding: 2px;">
+                              <small>
+                              DS110 
+                              N1
+                              <span > 
+                              - PROJETO DE ALGORITMOS E PRÁTI...
+                              </span></small> <span ><br>20:00 - 21:00    
+                              </span> <!----> <!---->
+                           </div>
+                           <div id="Segunda-Feira2" data-toggle="tooltip" title="PROJETO DE ALGORITMOS E PRÁTICA DE PROGRAMAÇÃO - N1 - Padrão - Teams - LUIZ ANTONIO PASSOS CARDOSO" class="color-palette bg-green-active" style="position: absolute; height: 90px; width: 100%; top: 180px; left: 0%; border: 1px solid gray; padding: 2px;">
+                              <small>
+                              DS110 
+                              N1
+                              <span > 
+                              - PROJETO DE ALGORITMOS E PRÁTI...
+                              </span></small> <span ><br>21:00 - 22:00    
+                              </span> <!----> <!---->
+                           </div>
+                           <div id="Segunda-Feira3" data-toggle="tooltip" title="PROJETO DE ALGORITMOS E PRÁTICA DE PROGRAMAÇÃO - N1 - Padrão - Teams - LUIZ ANTONIO PASSOS CARDOSO" class="color-palette bg-green-active" style="position: absolute; height: 90px; width: 100%; top: 270px; left: 0%; border: 1px solid gray; padding: 2px;">
+                              <small>
+                              DS110 
+                              N1
+                              <span > 
+                              - PROJETO DE ALGORITMOS E PRÁTI...
+                              </span></small> <span ><br>22:00 - 23:00    
+                              </span> <!----> <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                        </div>
+                        <div class="text-left" style="position: relative;">
+                           <div id="Terça-Feira0" data-toggle="tooltip" title="INTRODUÇÃO À ARQUITETURA DE COMPUTADORES - N1 - Padrão - Teams, Moodle TADS - PEDRO RODRIGUES TORRES JUNIOR" class="color-palette bg-green-active" style="position: absolute; height: 90px; width: 100%; top: 0px; left: 0%; border: 1px solid gray; padding: 2px;">
+                              <small>
+                              DS011 
+                              N1
+                              <span > 
+                              - INTRODUÇÃO À ARQUITETURA DE C...
+                              </span></small> <span ><br>19:00 - 20:00    
+                              </span> <!----> <!---->
+                           </div>
+                           <div id="Terça-Feira1" data-toggle="tooltip" title="MATEMÁTICA PARA COMPUTAÇÃO - N1 - Padrão - CICERO OSVALDO COATI" class="color-palette bg-green-active" style="position: absolute; height: 90px; width: 100%; top: 180px; left: 0%; border: 1px solid gray; padding: 2px;">
+                              <small>
+                              DS612 
+                              N1
+                              <span > 
+                              - MATEMÁTICA PARA COMPUTAÇÃO - ...
+                              </span></small> <span ><br>21:00 - 22:00    
+                              </span> <!----> <!---->
+                           </div>
+                           <div id="Terça-Feira2" data-toggle="tooltip" title="MATEMÁTICA PARA COMPUTAÇÃO - N1 - Padrão - CICERO OSVALDO COATI" class="color-palette bg-green-active" style="position: absolute; height: 90px; width: 100%; top: 270px; left: 0%; border: 1px solid gray; padding: 2px;">
+                              <small>
+                              DS612 
+                              N1
+                              <span > 
+                              - MATEMÁTICA PARA COMPUTAÇÃO - ...
+                              </span></small> <span ><br>22:00 - 23:00    
+                              </span> <!----> <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                        </div>
+                        <div class="text-left" style="position: relative;">
+                           <div id="Quarta-Feira0" data-toggle="tooltip" title="ADMINISTRAÇÃO DE SISTEMAS - N1 - Laboratório - Teams, Moodle TADS e e-mail - MAURO ANTONIO ALVES CASTRO" class="color-palette bg-green-active" style="position: absolute; height: 90px; width: 100%; top: 180px; left: 0%; border: 1px solid gray; padding: 2px;">
+                              <small>
+                              DS010 
+                              N1
+                              <span > 
+                              - ADMINISTRAÇÃO DE SISTEMAS - N1
+                              </span></small> <span ><br>21:00 - 22:00    
+                              </span> <!----> <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                        </div>
+                        <div class="text-left" style="position: relative;">
+                           <div id="Quinta-Feira0" data-toggle="tooltip" title="ENGENHARIA DE REQUISITOS - N1 - Padrão - LUIZ ANTÔNIO PEREIRA NEVES" class="color-palette bg-green-active" style="position: absolute; height: 90px; width: 100%; top: 0px; left: 0%; border: 1px solid gray; padding: 2px;">
+                              <small>
+                              DS210 
+                              N1
+                              <span > 
+                              - ENGENHARIA DE REQUISITOS - N1
+                              </span></small> <span ><br>19:00 - 20:00    
+                              </span> <!----> <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                        </div>
+                        <div class="text-left" style="position: relative;">
+                           <div id="Sexta-Feira0" data-toggle="tooltip" title="SISTEMAS DE INFORMAÇÃO - N1 - Padrão - Teams - MARIO DE PAULA SOARES FILHO" class="color-palette bg-green-active" style="position: absolute; height: 90px; width: 100%; top: 0px; left: 0%; border: 1px solid gray; padding: 2px;">
+                              <small>
+                              DS211 
+                              N1
+                              <span > 
+                              - SISTEMAS DE INFORMAÇÃO - N1
+                              </span></small> <span ><br>19:00 - 20:00    
+                              </span> <!----> <!---->
+                           </div>
+                           <div id="Sexta-Feira1" data-toggle="tooltip" title="ESTATÍSTICA PARA COMPUTAÇÃO - N1 - Padrão - Teams - EVANDRO LUIZ BRANDAO" class="color-palette bg-green-active" style="position: absolute; height: 90px; width: 100%; top: 180px; left: 0%; border: 1px solid gray; padding: 2px;">
+                              <small>
+                              DS611 
+                              N1
+                              <span > 
+                              - ESTATÍSTICA PARA COMPUTAÇÃO -...
+                              </span></small> <span ><br>21:00 - 22:00    
+                              </span> <!----> <!---->
+                           </div>
+                           <div id="Sexta-Feira2" data-toggle="tooltip" title="ESTATÍSTICA PARA COMPUTAÇÃO - N1 - Padrão - Teams - EVANDRO LUIZ BRANDAO" class="color-palette bg-green-active" style="position: absolute; height: 90px; width: 100%; top: 270px; left: 0%; border: 1px solid gray; padding: 2px;">
+                              <small>
+                              DS611 
+                              N1
+                              <span > 
+                              - ESTATÍSTICA PARA COMPUTAÇÃO -...
+                              </span></small> <span ><br>22:00 - 23:00    
+                              </span> <!----> <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                        </div>
+                        <div class="text-left" style="position: relative;">
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                        </div>
+                        <div class="text-left" style="position: relative;">
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                           <div style="height: 90px; width: 100%; border-bottom: 1px dashed gray;">
+                              <!---->
+                           </div>
+                        </div>
+                     </div>
+                     <!----> 
+                  </div>
+   </body>
+</html>
